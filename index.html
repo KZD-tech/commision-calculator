@@ -137,6 +137,7 @@
 
     <div class="card">
       <h2>Keputusan</h2>
+      <div id="dm-status-banner" class="status-banner status-fail">Tidak layak — Ads Spend belum capai minimum RM50,000.</div>
       <div class="results">
         <div class="stat">
           <div class="label">Net profit</div>
@@ -157,6 +158,11 @@
         </div>
       </div>
       <div class="note" id="dm-basis-note">Komisyen RM dikira berdasarkan Net Profit x Komisyen %.</div>
+    </div>
+
+    <div class="card">
+      <h2>Syarat kelayakan</h2>
+      <p class="note" style="margin-top:0;">Komisyen hanya terpakai jika <strong>Ads Spend ≥ RM50,000</strong>. Jika kurang, komisyen = RM0 walaupun ROAS mencapai tier tertentu.</p>
     </div>
 
     <div class="card">
@@ -265,9 +271,10 @@ function calculateDm(){
 
   var netProfit = sales - adspend - cogs;
   var roas = adspend > 0 ? (sales / adspend) : 0;
-  var tier = getDmTier(roas);
+  var qualifies = adspend >= 50000;
+  var tier = qualifies ? getDmTier(roas) : { pct: 0, label: "Tidak layak", cls: "tier-0", idx: -1 };
   var commPct = tier.pct;
-  var commRM = netProfit > 0 ? (netProfit * commPct / 100) : 0;
+  var commRM = (qualifies && netProfit > 0) ? (netProfit * commPct / 100) : 0;
 
   document.getElementById('dm-out-netprofit').textContent = fmtRM(netProfit);
   document.getElementById('dm-out-roas').textContent = roas.toFixed(2) + "x";
@@ -279,11 +286,20 @@ function calculateDm(){
   badge.className = "tier-badge " + tier.cls;
 
   document.querySelectorAll('#dm-tier-table tbody tr').forEach(function(r){
-    r.classList.toggle('active', parseInt(r.getAttribute('data-tier')) === tier.idx);
+    r.classList.toggle('active', qualifies && parseInt(r.getAttribute('data-tier')) === tier.idx);
   });
 
+  var banner = document.getElementById('dm-status-banner');
+  if (qualifies){
+    banner.textContent = "Layak — Ads Spend " + fmtRM(adspend) + " memenuhi syarat minimum.";
+    banner.className = "status-banner status-ok";
+  } else {
+    banner.textContent = "Tidak layak — Ads Spend belum capai minimum RM50,000.";
+    banner.className = "status-banner status-fail";
+  }
+
   var note = document.getElementById('dm-basis-note');
-  note.textContent = netProfit <= 0
+  note.textContent = (qualifies && netProfit <= 0)
     ? "Net Profit adalah RM0 atau negatif — komisyen tidak dikira walaupun ROAS mencapai tier tertentu."
     : "Komisyen RM dikira berdasarkan Net Profit x Komisyen %.";
 }
