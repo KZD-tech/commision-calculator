@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kalkulator Komisyen — Kaizen Digital</title>
+<style>
+  :root{
+    --accent:#185FA5; --accent-bg:#E6F1FB; --accent-border:#85B7EB;
+    --success:#0F6E56; --success-bg:#E1F5EE; --success-border:#5DCAA5;
+    --danger:#A32D2D; --danger-bg:#FCEBEB; --danger-border:#F09595;
+    --warn:#854F0B; --warn-bg:#FAEEDA; --warn-border:#EF9F27;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --page-bg:#1a1a1a; --card-bg:#242424; --text-primary:#f0f0ee; --text-secondary:#b8b6ae; --text-muted:#888780; --border:#3a3a38; }
+  }
+  @media (prefers-color-scheme: light){
+    :root{ --page-bg:#f4f3ee; --card-bg:#ffffff; --text-primary:#1c1c1a; --text-secondary:#5f5e5a; --text-muted:#888780; --border:#e2e0d6; }
+  }
+  :root[data-theme="dark"]{ --page-bg:#1a1a1a; --card-bg:#242424; --text-primary:#f0f0ee; --text-secondary:#b8b6ae; --text-muted:#888780; --border:#3a3a38; }
+  :root[data-theme="light"]{ --page-bg:#f4f3ee; --card-bg:#ffffff; --text-primary:#1c1c1a; --text-secondary:#5f5e5a; --text-muted:#888780; --border:#e2e0d6; }
+
+  * { box-sizing: border-box; }
+  body{
+    margin:0; background:var(--page-bg); color:var(--text-primary);
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    padding: 32px 16px;
+  }
+  .wrap{ max-width: 640px; margin: 0 auto; }
+  h1{ font-size: 20px; font-weight: 600; margin: 0 0 4px; }
+  .sub{ color: var(--text-secondary); font-size: 13px; margin: 0 0 20px; }
+
+  .tabs{ display:flex; gap:8px; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
+  .tab-btn{
+    flex:1; padding: 10px 12px; font-size: 14px; font-weight: 600; cursor:pointer;
+    background: transparent; border: none; color: var(--text-secondary);
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+  }
+  .tab-btn.active{ color: var(--accent); border-bottom-color: var(--accent); }
+
+  .panel{ display:none; }
+  .panel.active{ display:block; }
+
+  .card{
+    background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px; margin-bottom: 16px;
+  }
+  .card h2{ font-size: 14px; font-weight: 600; margin: 0 0 14px; color: var(--text-primary); }
+
+  .field{ margin-bottom: 14px; }
+  .field:last-child{ margin-bottom: 0; }
+  label{ display:block; font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }
+  .input-wrap{ position: relative; }
+  .input-wrap span.prefix{
+    position:absolute; left:12px; top:50%; transform:translateY(-50%);
+    color: var(--text-muted); font-size: 14px; pointer-events:none;
+  }
+  input[type=number]{
+    width:100%; height:40px; border-radius:8px; border:1px solid var(--border);
+    background: var(--page-bg); color: var(--text-primary);
+    padding: 0 12px 0 36px; font-size: 15px; outline:none;
+    -moz-appearance: textfield;
+  }
+  input[type=number]:focus{ border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-bg); }
+  input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
+
+  .results{ display:grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat{
+    background: var(--page-bg); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .stat .label{ font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+  .stat .value{ font-size: 18px; font-weight: 600; }
+
+  .highlight{ border: 1.5px solid var(--accent-border); background: var(--accent-bg); }
+  .highlight .label{ color: var(--accent); }
+  .highlight .value{ color: var(--accent); font-size: 24px; }
+
+  .status-banner{
+    border-radius: 10px; padding: 10px 14px; font-size: 13px; font-weight: 500;
+    margin-bottom: 14px; display:flex; align-items:center; gap:8px;
+  }
+  .status-ok{ background: var(--success-bg); color: var(--success); border:1px solid var(--success-border); }
+  .status-fail{ background: var(--danger-bg); color: var(--danger); border:1px solid var(--danger-border); }
+
+  .tier-badge{
+    display:inline-block; font-size: 12px; font-weight: 600; padding: 3px 10px;
+    border-radius: 999px; margin-top: 6px;
+  }
+  .tier-0{ background: var(--danger-bg); color: var(--danger); border:1px solid var(--danger-border); }
+  .tier-low{ background: var(--warn-bg); color: var(--warn); border:1px solid var(--warn-border); }
+  .tier-mid{ background: var(--accent-bg); color: var(--accent); border:1px solid var(--accent-border); }
+  .tier-high{ background: var(--success-bg); color: var(--success); border:1px solid var(--success-border); }
+
+  table.commtable{ width:100%; border-collapse: collapse; font-size: 13px; margin-top: 4px; }
+  table.commtable th, table.commtable td{
+    text-align:left; padding: 7px 8px; border-bottom: 1px solid var(--border);
+  }
+  table.commtable th{ color: var(--text-secondary); font-weight: 500; }
+  table.commtable tr.active{ background: var(--accent-bg); }
+  table.commtable tr.active td{ color: var(--accent); font-weight: 600; }
+
+  .note{ font-size: 12px; color: var(--text-muted); margin-top: 10px; line-height:1.5; }
+  .footer{ text-align:center; font-size: 12px; color: var(--text-muted); margin-top: 20px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Kalkulator Komisyen Staff</h1>
+  <p class="sub">Kaizen Digital Sdn. Bhd.</p>
+
+  <div class="tabs">
+    <button class="tab-btn active" id="tab-dm" onclick="switchTab('dm')">Digital Marketer</button>
+    <button class="tab-btn" id="tab-drm" onclick="switchTab('drm')">DRM</button>
+  </div>
+
+  <!-- ===================== DM PANEL ===================== -->
+  <div class="panel active" id="panel-dm">
+    <div class="card">
+      <h2>Input campaign</h2>
+      <div class="field">
+        <label for="dm-sales">Sales (RM)</label>
+        <div class="input-wrap"><span class="prefix">RM</span>
+          <input type="number" id="dm-sales" placeholder="0.00" step="0.01" min="0"></div>
+      </div>
+      <div class="field">
+        <label for="dm-adspend">Ads Spend (RM)</label>
+        <div class="input-wrap"><span class="prefix">RM</span>
+          <input type="number" id="dm-adspend" placeholder="0.00" step="0.01" min="0"></div>
+      </div>
+      <div class="field">
+        <label for="dm-cogs">COGS (RM)</label>
+        <div class="input-wrap"><span class="prefix">RM</span>
+          <input type="number" id="dm-cogs" placeholder="0.00" step="0.01" min="0"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Keputusan</h2>
+      <div class="results">
+        <div class="stat">
+          <div class="label">Net profit</div>
+          <div class="value" id="dm-out-netprofit">RM 0.00</div>
+        </div>
+        <div class="stat">
+          <div class="label">ROAS</div>
+          <div class="value" id="dm-out-roas">0.00x</div>
+          <span class="tier-badge tier-0" id="dm-tier-badge">Tiada komisyen</span>
+        </div>
+        <div class="stat">
+          <div class="label">Komisyen %</div>
+          <div class="value" id="dm-out-commpct">0%</div>
+        </div>
+        <div class="stat highlight">
+          <div class="label">Komisyen (RM)</div>
+          <div class="value" id="dm-out-commrm">RM 0.00</div>
+        </div>
+      </div>
+      <div class="note" id="dm-basis-note">Komisyen RM dikira berdasarkan Net Profit x Komisyen %.</div>
+    </div>
+
+    <div class="card">
+      <h2>Jadual kadar komisyen (ikut ROAS)</h2>
+      <table class="commtable" id="dm-tier-table">
+        <thead><tr><th>Julat ROAS</th><th>Kadar</th></tr></thead>
+        <tbody>
+          <tr data-tier="0"><td>&lt; 1.8x</td><td>0%</td></tr>
+          <tr data-tier="1"><td>1.8x – 2.0x</td><td>1.2%</td></tr>
+          <tr data-tier="2"><td>2.1x – 2.4x</td><td>1.5%</td></tr>
+          <tr data-tier="3"><td>2.6x ke atas</td><td>2.0%</td></tr>
+        </tbody>
+      </table>
+      <p class="note">Nota: julat 2.0x–2.1x dan 2.4x–2.6x tidak dinyatakan dalam jadual asal — kalkulator ini guna kadar tier terdekat yang lebih rendah untuk julat tersebut (cth: ROAS 2.5x = kadar 1.5%). Sila sahkan dengan HR/Finance jika perlu ubah.</p>
+    </div>
+  </div>
+
+  <!-- ===================== DRM PANEL ===================== -->
+  <div class="panel" id="panel-drm">
+    <div class="card">
+      <h2>Input campaign</h2>
+      <div class="field">
+        <label for="drm-sales">Sales (RM)</label>
+        <div class="input-wrap"><span class="prefix">RM</span>
+          <input type="number" id="drm-sales" placeholder="0.00" step="0.01" min="0"></div>
+      </div>
+      <div class="field">
+        <label for="drm-adspend">Ads Spend (RM)</label>
+        <div class="input-wrap"><span class="prefix">RM</span>
+          <input type="number" id="drm-adspend" placeholder="0.00" step="0.01" min="0"></div>
+      </div>
+      <div class="field">
+        <label for="drm-cogs">COGS (RM)</label>
+        <div class="input-wrap"><span class="prefix">RM</span>
+          <input type="number" id="drm-cogs" placeholder="0.00" step="0.01" min="0"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Keputusan</h2>
+      <div id="drm-status-banner" class="status-banner status-fail">Tidak layak — Sales dan ROI belum cukup syarat minimum.</div>
+      <div class="results">
+        <div class="stat">
+          <div class="label">Net profit</div>
+          <div class="value" id="drm-out-netprofit">RM 0.00</div>
+        </div>
+        <div class="stat">
+          <div class="label">ROI</div>
+          <div class="value" id="drm-out-roi">0.00x</div>
+        </div>
+        <div class="stat">
+          <div class="label">Komisyen %</div>
+          <div class="value" id="drm-out-commpct">0%</div>
+          <span class="tier-badge tier-0" id="drm-tier-badge">Tidak layak</span>
+        </div>
+        <div class="stat highlight">
+          <div class="label">Komisyen (RM)</div>
+          <div class="value" id="drm-out-commrm">RM 0.00</div>
+        </div>
+      </div>
+      <div class="note">Komisyen RM dikira berdasarkan Sales x Komisyen %.</div>
+    </div>
+
+    <div class="card">
+      <h2>Syarat kelayakan &amp; jadual kadar</h2>
+      <p class="note" style="margin-top:0;">Kelayakan komisyen hanya terpakai jika <strong>Sales ≥ RM100,000</strong> DAN <strong>ROI ≥ 5x</strong>. Jika salah satu syarat tak dipenuhi, komisyen = RM0 walaupun tier Sales tercapai.</p>
+      <table class="commtable" id="drm-tier-table">
+        <thead><tr><th>Julat Sales</th><th>Kadar</th></tr></thead>
+        <tbody>
+          <tr data-tier="1"><td>RM100,000 – RM109,999</td><td>0.5%</td></tr>
+          <tr data-tier="2"><td>RM110,000 – RM250,000</td><td>0.8%</td></tr>
+          <tr data-tier="3"><td>&gt; RM250,000</td><td>1.2%</td></tr>
+        </tbody>
+      </table>
+      <p class="note">Nota: ROI dikira sebagai Net Profit ÷ (Ads Spend + COGS) x 100. Sahkan dengan HR/Finance jika formula ROI syarikat berbeza.</p>
+    </div>
+  </div>
+
+  <p class="footer">Internal tool — Kaizen Digital Sdn. Bhd.</p>
+</div>
+
+<script>
+function fmtRM(n){
+  return "RM " + n.toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function switchTab(tab){
+  document.getElementById('tab-dm').classList.toggle('active', tab === 'dm');
+  document.getElementById('tab-drm').classList.toggle('active', tab === 'drm');
+  document.getElementById('panel-dm').classList.toggle('active', tab === 'dm');
+  document.getElementById('panel-drm').classList.toggle('active', tab === 'drm');
+}
+
+// ---------- DM logic ----------
+function getDmTier(roas){
+  if (roas >= 2.6) return { pct: 2.0, label: "Tier tertinggi", cls: "tier-high", idx: 3 };
+  if (roas >= 2.1) return { pct: 1.5, label: "Tier sederhana", cls: "tier-mid", idx: 2 };
+  if (roas >= 1.8) return { pct: 1.2, label: "Tier asas", cls: "tier-low", idx: 1 };
+  return { pct: 0, label: "Tiada komisyen", cls: "tier-0", idx: 0 };
+}
+
+function calculateDm(){
+  var sales = parseFloat(document.getElementById('dm-sales').value) || 0;
+  var adspend = parseFloat(document.getElementById('dm-adspend').value) || 0;
+  var cogs = parseFloat(document.getElementById('dm-cogs').value) || 0;
+
+  var netProfit = sales - adspend - cogs;
+  var roas = adspend > 0 ? (sales / adspend) : 0;
+  var tier = getDmTier(roas);
+  var commPct = tier.pct;
+  var commRM = netProfit > 0 ? (netProfit * commPct / 100) : 0;
+
+  document.getElementById('dm-out-netprofit').textContent = fmtRM(netProfit);
+  document.getElementById('dm-out-roas').textContent = roas.toFixed(2) + "x";
+  document.getElementById('dm-out-commpct').textContent = commPct.toFixed(1) + "%";
+  document.getElementById('dm-out-commrm').textContent = fmtRM(commRM);
+
+  var badge = document.getElementById('dm-tier-badge');
+  badge.textContent = tier.label;
+  badge.className = "tier-badge " + tier.cls;
+
+  document.querySelectorAll('#dm-tier-table tbody tr').forEach(function(r){
+    r.classList.toggle('active', parseInt(r.getAttribute('data-tier')) === tier.idx);
+  });
+
+  var note = document.getElementById('dm-basis-note');
+  note.textContent = netProfit <= 0
+    ? "Net Profit adalah RM0 atau negatif — komisyen tidak dikira walaupun ROAS mencapai tier tertentu."
+    : "Komisyen RM dikira berdasarkan Net Profit x Komisyen %.";
+}
+
+// ---------- DRM logic ----------
+function getDrmTier(sales){
+  if (sales > 250000) return { pct: 1.2, cls: "tier-high", idx: 3 };
+  if (sales >= 110000) return { pct: 0.8, cls: "tier-mid", idx: 2 };
+  if (sales >= 100000) return { pct: 0.5, cls: "tier-low", idx: 1 };
+  return { pct: 0, cls: "tier-0", idx: 0 };
+}
+
+function calculateDrm(){
+  var sales = parseFloat(document.getElementById('drm-sales').value) || 0;
+  var adspend = parseFloat(document.getElementById('drm-adspend').value) || 0;
+  var cogs = parseFloat(document.getElementById('drm-cogs').value) || 0;
+
+  var netProfit = sales - adspend - cogs;
+  var cost = adspend + cogs;
+  var roi = cost > 0 ? (netProfit / cost) : 0;
+
+  var qualifies = (sales >= 100000) && (roi >= 5);
+  var tier = qualifies ? getDrmTier(sales) : { pct: 0, cls: "tier-0", idx: 0 };
+  var commRM = qualifies ? (sales * tier.pct / 100) : 0;
+
+  document.getElementById('drm-out-netprofit').textContent = fmtRM(netProfit);
+  document.getElementById('drm-out-roi').textContent = roi.toFixed(2) + "x";
+  document.getElementById('drm-out-commpct').textContent = tier.pct.toFixed(1) + "%";
+  document.getElementById('drm-out-commrm').textContent = fmtRM(commRM);
+
+  var badge = document.getElementById('drm-tier-badge');
+  badge.textContent = qualifies ? "Layak" : "Tidak layak";
+  badge.className = "tier-badge " + tier.cls;
+
+  var banner = document.getElementById('drm-status-banner');
+  if (qualifies){
+    banner.textContent = "Layak — Sales " + fmtRM(sales) + " dan ROI " + roi.toFixed(2) + "x memenuhi syarat minimum.";
+    banner.className = "status-banner status-ok";
+  } else {
+    var reasons = [];
+    if (sales < 100000) reasons.push("Sales belum capai RM100,000");
+    if (roi < 5) reasons.push("ROI belum capai 5x");
+    banner.textContent = "Tidak layak — " + reasons.join(" dan ");
+    banner.className = "status-banner status-fail";
+  }
+
+  document.querySelectorAll('#drm-tier-table tbody tr').forEach(function(r){
+    r.classList.toggle('active', qualifies && parseInt(r.getAttribute('data-tier')) === tier.idx);
+  });
+}
+
+['dm-sales','dm-adspend','dm-cogs'].forEach(function(id){
+  document.getElementById(id).addEventListener('input', calculateDm);
+});
+['drm-sales','drm-adspend','drm-cogs'].forEach(function(id){
+  document.getElementById(id).addEventListener('input', calculateDrm);
+});
+
+calculateDm();
+calculateDrm();
+</script>
+</body>
+</html>
