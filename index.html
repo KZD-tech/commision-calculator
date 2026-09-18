@@ -170,13 +170,11 @@
       <table class="commtable" id="dm-tier-table">
         <thead><tr><th>Julat ROAS</th><th>Kadar</th></tr></thead>
         <tbody>
-          <tr data-tier="0"><td>&lt; 1.8x</td><td>0%</td></tr>
-          <tr data-tier="1"><td>1.8x – 2.0x</td><td>1.2%</td></tr>
-          <tr data-tier="2"><td>2.1x – 2.4x</td><td>1.5%</td></tr>
-          <tr data-tier="3"><td>2.6x ke atas</td><td>2.0%</td></tr>
+          <tr data-tier="0"><td>&lt; 2.0x</td><td>0%</td></tr>
+          <tr data-tier="1"><td>2.0x – 2.4x</td><td>1.2%</td></tr>
+          <tr data-tier="2"><td>2.5x ke atas</td><td>1.5%</td></tr>
         </tbody>
       </table>
-      <p class="note">Nota: julat 2.0x–2.1x dan 2.4x–2.6x tidak dinyatakan dalam jadual asal — kalkulator ini guna kadar tier terdekat yang lebih rendah untuk julat tersebut (cth: ROAS 2.5x = kadar 1.5%). Sila sahkan dengan HR/Finance jika perlu ubah.</p>
     </div>
   </div>
 
@@ -258,9 +256,8 @@ function switchTab(tab){
 
 // ---------- DM logic ----------
 function getDmTier(roas){
-  if (roas >= 2.6) return { pct: 2.0, label: "Tier tertinggi", cls: "tier-high", idx: 3 };
-  if (roas >= 2.1) return { pct: 1.5, label: "Tier sederhana", cls: "tier-mid", idx: 2 };
-  if (roas >= 1.8) return { pct: 1.2, label: "Tier asas", cls: "tier-low", idx: 1 };
+  if (roas >= 2.5) return { pct: 1.5, label: "Tier sederhana", cls: "tier-mid", idx: 2 };
+  if (roas >= 2.0) return { pct: 1.2, label: "Tier asas", cls: "tier-low", idx: 1 };
   return { pct: 0, label: "Tiada komisyen", cls: "tier-0", idx: 0 };
 }
 
