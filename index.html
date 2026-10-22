@@ -110,7 +110,7 @@
   <p class="sub">Kaizen Digital Sdn. Bhd.</p>
 
   <div class="tabs">
-    <button class="tab-btn active" id="tab-dm" onclick="switchTab('dm')">Digital Marketer</button>
+    <button class="tab-btn active" id="tab-dm" onclick="switchTab('dm')">Media Buyer + Content</button>
     <button class="tab-btn" id="tab-drm" onclick="switchTab('drm')">DRM</button>
   </div>
 
@@ -119,7 +119,7 @@
     <div class="card">
       <h2>Input campaign</h2>
       <div class="field">
-        <label for="dm-sales">Sales (RM)</label>
+        <label for="dm-sales">Kutipan / Sales (RM)</label>
         <div class="input-wrap"><span class="prefix">RM</span>
           <input type="number" id="dm-sales" placeholder="0.00" step="0.01" min="0"></div>
       </div>
@@ -128,53 +128,71 @@
         <div class="input-wrap"><span class="prefix">RM</span>
           <input type="number" id="dm-adspend" placeholder="0.00" step="0.01" min="0"></div>
       </div>
+    </div>
+
+    <div class="card">
+      <h2>Pembahagian pool</h2>
       <div class="field">
-        <label for="dm-cogs">COGS (RM)</label>
-        <div class="input-wrap"><span class="prefix">RM</span>
-          <input type="number" id="dm-cogs" placeholder="0.00" step="0.01" min="0"></div>
+        <label for="dm-split-mb">Bahagian Media Buyer (%) — Content dapat baki</label>
+        <input type="number" id="dm-split-mb" value="80" step="1" min="0" max="100" style="padding-left:12px;">
       </div>
+      <div class="field">
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin-bottom:0;">
+          <input type="checkbox" id="dm-content-ok" checked style="width:16px; height:16px;">
+          Content capai syarat minimum
+        </label>
+      </div>
+      <div class="note">Bahagian pihak yang gagal syarat minimum hangus dan kembali kepada syarikat, tak dipindahkan kepada pihak lain. (Andaian — perlu disahkan)</div>
     </div>
 
     <div class="card">
       <h2>Keputusan</h2>
-      <div id="dm-status-banner" class="status-banner status-fail">Tidak layak — Ads Spend belum capai minimum RM50,000.</div>
+      <div id="dm-status-banner" class="status-banner status-fail">Tidak layak — syarat minimum Media Buyer belum dipenuhi.</div>
       <div class="results">
         <div class="stat">
-          <div class="label">Net profit</div>
-          <div class="value" id="dm-out-netprofit">RM 0.00</div>
+          <div class="label">SST 8% (atas Ads Spend)</div>
+          <div class="value" id="dm-out-sst">RM 0.00</div>
+        </div>
+        <div class="stat">
+          <div class="label">Net</div>
+          <div class="value" id="dm-out-net">RM 0.00</div>
         </div>
         <div class="stat">
           <div class="label">ROAS</div>
           <div class="value" id="dm-out-roas">0.00x</div>
-          <span class="tier-badge tier-0" id="dm-tier-badge">Tiada komisyen</span>
         </div>
         <div class="stat">
-          <div class="label">Komisyen %</div>
-          <div class="value" id="dm-out-commpct">0%</div>
+          <div class="label">Pool komisyen (1.5% Net)</div>
+          <div class="value" id="dm-out-pool">RM 0.00</div>
         </div>
         <div class="stat highlight">
-          <div class="label">Komisyen (RM)</div>
-          <div class="value" id="dm-out-commrm">RM 0.00</div>
+          <div class="label">Media Buyer (RM)</div>
+          <div class="value" id="dm-out-mb">RM 0.00</div>
+        </div>
+        <div class="stat highlight">
+          <div class="label">Content (RM)</div>
+          <div class="value" id="dm-out-content">RM 0.00</div>
+        </div>
+        <div class="stat full">
+          <div class="label">Hangus — kembali kepada syarikat</div>
+          <div class="value" id="dm-out-forfeit">RM 0.00</div>
         </div>
       </div>
-      <div class="note" id="dm-basis-note">Komisyen RM dikira berdasarkan Net Profit x Komisyen %.</div>
+      <div class="note">Net = Kutipan − Ads Spend − SST 8% (COGS tak dikira). Pool = 1.5% x Net.</div>
     </div>
 
     <div class="card">
-      <h2>Syarat kelayakan</h2>
-      <p class="note" style="margin-top:0;">Komisyen hanya terpakai jika <strong>Ads Spend ≥ RM50,000</strong>. Jika kurang, komisyen = RM0 walaupun ROAS mencapai tier tertentu.</p>
-    </div>
-
-    <div class="card">
-      <h2>Jadual kadar komisyen (ikut ROAS)</h2>
-      <table class="commtable" id="dm-tier-table">
-        <thead><tr><th>Julat ROAS</th><th>Kadar</th></tr></thead>
+      <h2>Syarat &amp; kadar</h2>
+      <table class="commtable">
+        <thead><tr><th>Perkara</th><th>Nilai</th></tr></thead>
         <tbody>
-          <tr data-tier="0"><td>&lt; 2.0x</td><td>0%</td></tr>
-          <tr data-tier="1"><td>2.0x – 2.4x</td><td>1.2%</td></tr>
-          <tr data-tier="2"><td>2.5x ke atas</td><td>1.5%</td></tr>
+          <tr><td>Kadar pool</td><td>1.5% Net (tunggal)</td></tr>
+          <tr><td>Minimum ROAS</td><td>≥ 2.0x</td></tr>
+          <tr><td>Minimum Ads Spend</td><td>≥ RM50,000</td></tr>
+          <tr><td>SST</td><td>8% x Ads Spend</td></tr>
         </tbody>
       </table>
+      <p class="note">Syarat ROAS dan Ads Spend dikira sebagai syarat minimum Media Buyer. Syarat minimum Content belum dinyatakan, jadi ditandakan manual melalui checkbox di atas.</p>
     </div>
   </div>
 
@@ -191,11 +209,6 @@
         <label for="drm-adspend">Ads Spend (RM)</label>
         <div class="input-wrap"><span class="prefix">RM</span>
           <input type="number" id="drm-adspend" placeholder="0.00" step="0.01" min="0"></div>
-      </div>
-      <div class="field">
-        <label for="drm-cogs">COGS (RM)</label>
-        <div class="input-wrap"><span class="prefix">RM</span>
-          <input type="number" id="drm-cogs" placeholder="0.00" step="0.01" min="0"></div>
       </div>
     </div>
 
@@ -216,10 +229,6 @@
       <div id="drm-status-banner" class="status-banner status-fail">Tidak layak — syarat minimum belum dipenuhi.</div>
       <div class="results">
         <div class="stat">
-          <div class="label">Net profit</div>
-          <div class="value" id="drm-out-netprofit">RM 0.00</div>
-        </div>
-        <div class="stat">
           <div class="label">ROAS</div>
           <div class="value" id="drm-out-roas">0.00x</div>
         </div>
@@ -228,8 +237,8 @@
           <div class="value" id="drm-out-reactrate">0.00%</div>
         </div>
         <div class="stat">
-          <div class="label">Komisyen %</div>
-          <div class="value" id="drm-out-commpct">0%</div>
+          <div class="label">Kadar efektif %</div>
+          <div class="value" id="drm-out-commpct">0.00%</div>
           <span class="tier-badge tier-0" id="drm-tier-badge">Tidak layak</span>
         </div>
         <div class="stat highlight full">
@@ -237,20 +246,21 @@
           <div class="value" id="drm-out-commrm">RM 0.00</div>
         </div>
       </div>
-      <div class="note">Komisyen RM dikira berdasarkan Sales x Komisyen % (Collection tier).</div>
+      <div class="note">Komisyen RM dikira secara progresif ikut lapisan Collection (bukan satu kadar atas keseluruhan). Kadar efektif = Komisyen RM ÷ Sales.</div>
     </div>
 
     <div class="card">
       <h2>Syarat kelayakan &amp; jadual kadar</h2>
       <p class="note" style="margin-top:0;">Komisyen hanya unlock jika <strong>KETIGA-TIGA</strong> syarat dipenuhi: Sales ≥ RM100,000, ROAS ≥ 5x, dan Reactivation rate ≥ 1% (donor churn/dormant yang diaktifkan semula ÷ donor tak aktif awal bulan). Jika mana-mana satu syarat tak cukup, komisyen = RM0.</p>
       <table class="commtable" id="drm-tier-table">
-        <thead><tr><th>Julat Sales (Collection)</th><th>Kadar</th></tr></thead>
+        <thead><tr><th>Lapisan Collection</th><th>Kadar (pada lapisan tu je)</th></tr></thead>
         <tbody>
-          <tr data-tier="1"><td>RM100,000 – RM149,999</td><td>0.5%</td></tr>
-          <tr data-tier="2"><td>RM150,000 – RM249,999</td><td>0.8%</td></tr>
-          <tr data-tier="3"><td>RM250,000 ke atas</td><td>1.2%</td></tr>
+          <tr data-tier="1"><td>RM0 – RM150,000</td><td>0.5%</td></tr>
+          <tr data-tier="2"><td>RM150,000 – RM250,000</td><td>1.7%</td></tr>
+          <tr data-tier="3"><td>Atas RM250,000</td><td>2.0%</td></tr>
         </tbody>
       </table>
+      <p class="note">Contoh: Collection RM200,000 = (150,000 x 0.5%) + (50,000 x 1.7%) = RM750 + RM850 = RM1,600.</p>
     </div>
   </div>
 
@@ -270,79 +280,82 @@ function switchTab(tab){
 }
 
 // ---------- DM logic ----------
-function getDmTier(roas){
-  if (roas >= 2.5) return { pct: 1.5, label: "Tier sederhana", cls: "tier-mid", idx: 2 };
-  if (roas >= 2.0) return { pct: 1.2, label: "Tier asas", cls: "tier-low", idx: 1 };
-  return { pct: 0, label: "Tiada komisyen", cls: "tier-0", idx: 0 };
-}
-
 function calculateDm(){
   var sales = parseFloat(document.getElementById('dm-sales').value) || 0;
   var adspend = parseFloat(document.getElementById('dm-adspend').value) || 0;
-  var cogs = parseFloat(document.getElementById('dm-cogs').value) || 0;
+  var splitMb = parseFloat(document.getElementById('dm-split-mb').value);
+  if (isNaN(splitMb)) splitMb = 80;
+  splitMb = Math.min(100, Math.max(0, splitMb));
+  var contentOk = document.getElementById('dm-content-ok').checked;
 
-  var netProfit = sales - adspend - cogs;
+  var sst = adspend * 0.08;
+  var net = sales - adspend - sst;
   var roas = adspend > 0 ? (sales / adspend) : 0;
-  var qualifies = adspend >= 50000;
-  var tier = qualifies ? getDmTier(roas) : { pct: 0, label: "Tidak layak", cls: "tier-0", idx: -1 };
-  var commPct = tier.pct;
-  var commRM = (qualifies && netProfit > 0) ? (netProfit * commPct / 100) : 0;
+  var pool = net > 0 ? (net * 0.015) : 0;
 
-  document.getElementById('dm-out-netprofit').textContent = fmtRM(netProfit);
+  var mbOk = (adspend >= 50000) && (roas >= 2);
+  var mbShare = pool * splitMb / 100;
+  var contentShare = pool - mbShare;
+  var mbPay = mbOk ? mbShare : 0;
+  var contentPay = contentOk ? contentShare : 0;
+  var forfeit = pool - mbPay - contentPay;
+
+  document.getElementById('dm-out-sst').textContent = fmtRM(sst);
+  document.getElementById('dm-out-net').textContent = fmtRM(net);
   document.getElementById('dm-out-roas').textContent = roas.toFixed(2) + "x";
-  document.getElementById('dm-out-commpct').textContent = commPct.toFixed(1) + "%";
-  document.getElementById('dm-out-commrm').textContent = fmtRM(commRM);
-
-  var badge = document.getElementById('dm-tier-badge');
-  badge.textContent = tier.label;
-  badge.className = "tier-badge " + tier.cls;
-
-  document.querySelectorAll('#dm-tier-table tbody tr').forEach(function(r){
-    r.classList.toggle('active', qualifies && parseInt(r.getAttribute('data-tier')) === tier.idx);
-  });
+  document.getElementById('dm-out-pool').textContent = fmtRM(pool);
+  document.getElementById('dm-out-mb').textContent = fmtRM(mbPay);
+  document.getElementById('dm-out-content').textContent = fmtRM(contentPay);
+  document.getElementById('dm-out-forfeit').textContent = fmtRM(forfeit);
 
   var banner = document.getElementById('dm-status-banner');
-  if (qualifies){
-    banner.textContent = "Layak — Ads Spend " + fmtRM(adspend) + " memenuhi syarat minimum.";
+  var reasons = [];
+  if (adspend < 50000) reasons.push("Ads Spend belum capai RM50,000");
+  if (roas < 2) reasons.push("ROAS belum capai 2.0x");
+  if (mbOk && contentOk){
+    banner.textContent = "Layak — Media Buyer dan Content memenuhi syarat minimum.";
     banner.className = "status-banner status-ok";
   } else {
-    banner.textContent = "Tidak layak — Ads Spend belum capai minimum RM50,000.";
+    var parts = [];
+    if (!mbOk) parts.push("Media Buyer: " + reasons.join(", "));
+    if (!contentOk) parts.push("Content: syarat minimum belum dipenuhi");
+    banner.textContent = "Bahagian hangus — " + parts.join(" | ");
     banner.className = "status-banner status-fail";
   }
-
-  var note = document.getElementById('dm-basis-note');
-  note.textContent = (qualifies && netProfit <= 0)
-    ? "Net Profit adalah RM0 atau negatif — komisyen tidak dikira walaupun ROAS mencapai tier tertentu."
-    : "Komisyen RM dikira berdasarkan Net Profit x Komisyen %.";
 }
 
 // ---------- DRM logic ----------
 function getDrmTier(sales){
-  if (sales >= 250000) return { pct: 1.2, cls: "tier-high", idx: 3 };
-  if (sales >= 150000) return { pct: 0.8, cls: "tier-mid", idx: 2 };
-  if (sales >= 100000) return { pct: 0.5, cls: "tier-low", idx: 1 };
-  return { pct: 0, cls: "tier-0", idx: 0 };
+  if (sales > 250000) return { cls: "tier-high", idx: 3 };
+  if (sales > 150000) return { cls: "tier-mid", idx: 2 };
+  if (sales >= 100000) return { cls: "tier-low", idx: 1 };
+  return { cls: "tier-0", idx: 0 };
+}
+
+function calcDrmProgressive(sales){
+  var l1 = Math.min(sales, 150000);
+  var l2 = Math.max(0, Math.min(sales, 250000) - 150000);
+  var l3 = Math.max(0, sales - 250000);
+  return (l1 * 0.005) + (l2 * 0.017) + (l3 * 0.02);
 }
 
 function calculateDrm(){
   var sales = parseFloat(document.getElementById('drm-sales').value) || 0;
   var adspend = parseFloat(document.getElementById('drm-adspend').value) || 0;
-  var cogs = parseFloat(document.getElementById('drm-cogs').value) || 0;
   var inactive = parseFloat(document.getElementById('drm-inactive').value) || 0;
   var reactivated = parseFloat(document.getElementById('drm-reactivated').value) || 0;
 
-  var netProfit = sales - adspend - cogs;
   var roas = adspend > 0 ? (sales / adspend) : 0;
   var reactRate = inactive > 0 ? (reactivated / inactive * 100) : 0;
 
   var qualifies = (sales >= 100000) && (roas >= 5) && (reactRate >= 1);
-  var tier = qualifies ? getDrmTier(sales) : { pct: 0, cls: "tier-0", idx: 0 };
-  var commRM = qualifies ? (sales * tier.pct / 100) : 0;
+  var tier = qualifies ? getDrmTier(sales) : { cls: "tier-0", idx: 0 };
+  var commRM = qualifies ? calcDrmProgressive(sales) : 0;
+  var effPct = (qualifies && sales > 0) ? (commRM / sales * 100) : 0;
 
-  document.getElementById('drm-out-netprofit').textContent = fmtRM(netProfit);
   document.getElementById('drm-out-roas').textContent = roas.toFixed(2) + "x";
   document.getElementById('drm-out-reactrate').textContent = reactRate.toFixed(2) + "%";
-  document.getElementById('drm-out-commpct').textContent = tier.pct.toFixed(1) + "%";
+  document.getElementById('drm-out-commpct').textContent = effPct.toFixed(2) + "%";
   document.getElementById('drm-out-commrm').textContent = fmtRM(commRM);
 
   var badge = document.getElementById('drm-tier-badge');
@@ -367,10 +380,11 @@ function calculateDrm(){
   });
 }
 
-['dm-sales','dm-adspend','dm-cogs'].forEach(function(id){
+['dm-sales','dm-adspend','dm-split-mb'].forEach(function(id){
   document.getElementById(id).addEventListener('input', calculateDm);
 });
-['drm-sales','drm-adspend','drm-cogs','drm-inactive','drm-reactivated'].forEach(function(id){
+document.getElementById('dm-content-ok').addEventListener('change', calculateDm);
+['drm-sales','drm-adspend','drm-inactive','drm-reactivated'].forEach(function(id){
   document.getElementById(id).addEventListener('input', calculateDrm);
 });
 
